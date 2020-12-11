@@ -82,17 +82,17 @@ public:
           host = optarg;
           break;
         }
-
+        
         case 'm': {
           mbox = optarg;
           break;
         }
-
+        
         case 'n': {
           ns = optarg;
           break;
         }
-
+        
         case 't': {
           int n = strtol(optarg, NULL, 10);
           if (n > 0 && n < 1000) nThreads = n;
@@ -147,19 +147,23 @@ public:
       }
     }
     if (filter_whitelist.empty()) {
-        filter_whitelist.insert(1);
-        filter_whitelist.insert(5);
-        filter_whitelist.insert(9);
-        filter_whitelist.insert(13);
+        filter_whitelist.insert(NODE_NETWORK);
+        filter_whitelist.insert(NODE_NETWORK | NODE_BLOOM);
+        filter_whitelist.insert(NODE_NETWORK | NODE_WITNESS);
+        filter_whitelist.insert(NODE_NETWORK | NODE_WITNESS | NODE_COMPACT_FILTERS);
+        filter_whitelist.insert(NODE_NETWORK | NODE_WITNESS | NODE_BLOOM);
+        filter_whitelist.insert(NODE_NETWORK_LIMITED);
+        filter_whitelist.insert(NODE_NETWORK_LIMITED | NODE_BLOOM);
+        filter_whitelist.insert(NODE_NETWORK_LIMITED | NODE_WITNESS);
+        filter_whitelist.insert(NODE_NETWORK_LIMITED | NODE_WITNESS | NODE_COMPACT_FILTERS);
+        filter_whitelist.insert(NODE_NETWORK_LIMITED | NODE_WITNESS | NODE_BLOOM);
     }
     if (host != NULL && ns == NULL) showHelp = true;
     if (showHelp) fprintf(stderr, help, argv[0]);
   }
 };
 
-extern "C" {
 #include "dns.h"
-}
 
 CAddrDb db;
 
@@ -183,8 +187,9 @@ extern "C" void* ThreadCrawler(void* data) {
       res.nClientV = 0;
       res.nHeight = 0;
       res.strClientV = "";
+      res.services = 0;
       bool getaddr = res.ourLastSuccess + 86400 < now;
-      res.fGood = TestNode(res.service,res.nBanTime,res.nClientV,res.strClientV,res.nHeight,getaddr ? &addr : NULL);
+      res.fGood = TestNode(res.service,res.nBanTime,res.nClientV,res.strClientV,res.nHeight,getaddr ? &addr : NULL, res.services);
     }
     db.ResultMany(ips);
     db.Add(addr);
@@ -363,11 +368,6 @@ extern "C" void* ThreadDumper(void*) {
       FILE *ff = fopen("dnsstats.log", "a");
       fprintf(ff, "%llu %g %g %g %g %g\n", (unsigned long long)(time(NULL)), stat[0], stat[1], stat[2], stat[3], stat[4]);
       fclose(ff);
-      FILE *fs = fopen("nodestats.csv", "a");
-      CAddrDbStats stats;
-      db.GetStats(stats);
-      fprintf(fs, "%llu %i\n", (unsigned long long)(time(NULL)), stats.nGood);
-      fclose(fs);
     }
   } while(1);
   return nullptr;
@@ -397,7 +397,6 @@ extern "C" void* ThreadStats(void*) {
       queries += dnsThread[i]->dbQueries;
     }
     printf("%s %i/%i available (%i tried in %is, %i new, %i active), %i banned; %llu DNS requests, %llu db queries", c, stats.nGood, stats.nAvail, stats.nTracked, stats.nAge, stats.nNew, stats.nAvail - stats.nTracked - stats.nNew, stats.nBanned, (unsigned long long)requests, (unsigned long long)queries);
-    printf("\n");
     Sleep(1000);
   } while(1);
   return nullptr;

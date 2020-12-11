@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2011 The Navcoin developers
+// Copyright (c) 2011 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
@@ -60,6 +60,10 @@ class CMessageHeader
 enum
 {
     NODE_NETWORK = (1 << 0),
+    NODE_BLOOM = (1 << 2),
+    NODE_WITNESS = (1 << 3),
+    NODE_COMPACT_FILTERS = (1 << 6),
+    NODE_NETWORK_LIMITED = (1 << 10),
 };
 
 class CAddress : public CService

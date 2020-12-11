@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2011 The Navcoin developers
+// Copyright (c) 2011 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,7 +36,9 @@ CMessageHeader::CMessageHeader()
 CMessageHeader::CMessageHeader(const char* pszCommand, unsigned int nMessageSizeIn)
 {
     memcpy(pchMessageStart, ::pchMessageStart, sizeof(pchMessageStart));
-    strncpy(pchCommand, pszCommand, COMMAND_SIZE);
+    int command_len = strlen(pszCommand);
+    memcpy(pchCommand, pszCommand, command_len);
+    memset(pchCommand + command_len, 0, COMMAND_SIZE - command_len);
     nMessageSize = nMessageSizeIn;
     nChecksum = 0;
 }
