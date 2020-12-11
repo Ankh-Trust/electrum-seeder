@@ -6,7 +6,7 @@
 #include "serialize.h"
 #include "uint256.h"
 
-#define BITCOIN_SEED_NONCE  0x0539a019ca550825ULL
+#define BITCOIN_SEED_NONCE  0x0539a019ca550825
 
 using namespace std;
 
@@ -298,7 +298,7 @@ bool TestNode(const CService &cip, int &ban, int &clientV, std::string &clientSV
 
 /*
 int main(void) {
-  CService ip("navcoin.sipa.be", 8333, true);
+  CService ip("ip", port, true);
   vector<CAddress> vAddr;
   vAddr.clear();
   int ban = 0;
